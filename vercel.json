@@ -12,11 +12,11 @@
     }
   ],
   "routes": [
-    
     { "src": "/api/(.*)", "dest": "/backend/index.js" },
 
-    { "src": "/(.*\\.(js|css|map|ico|png|svg|json|txt|woff2?|eot|ttf))", "dest": "/frontend/$1" },
+    { "src": "/(.*)", "dest": "/frontend/$1" },
 
+ 
     { "src": "/.*", "dest": "/frontend/index.html" }
   ]
 }
