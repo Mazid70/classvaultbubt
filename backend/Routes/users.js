@@ -13,6 +13,7 @@ router.get('/', verifyToken, async (req, res) => {
     const limit = parseInt(req.query.limit) || 6;
     const page = parseInt(req.query.page) || 1;
 
+    // Build the search query
     const query = {
       _id: { $ne: req.user.userId }, // skip current user
       $or: [
@@ -22,12 +23,21 @@ router.get('/', verifyToken, async (req, res) => {
       ],
     };
 
-    const totalCount = await User.countDocuments(query); // total count for pagination
+    // Total count for pagination
+    const totalCount = await User.countDocuments(query);
 
-    const users = await User.find(query)
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+    // Aggregate users with "Pending" first, then others
+    const users = await User.aggregate([
+      { $match: query },
+      {
+        $addFields: {
+          pendingFirst: { $cond: [{ $eq: ["$status", "Pending"] }, 0, 1] },
+        },
+      },
+      { $sort: { pendingFirst: 1, createdAt: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+    ]);
 
     res.status(200).json({ data: users, totalCount });
   } catch (error) {
@@ -35,6 +45,7 @@ router.get('/', verifyToken, async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
 
 // PATCH /users/:id/status
 router.patch('/:id/status', verifyToken, async (req, res) => {
