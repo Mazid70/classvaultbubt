@@ -131,7 +131,7 @@ router.post('/signin', async (req, res) => {
 
     const user = await User.findOne({ studentId });
     if (!user) {
-      return res.status(400).json({ error: "User does not exist" });
+      return res.status(400).json({ error: "User not exist" });
     }
 
     const validPass = await bcrypt.compare(password, user.password);
@@ -226,7 +226,7 @@ We received a request to reset your password for your ClassVault account.
 
 Please click the link below to reset your password. This link will expire in 10 minutes for security reasons:
 
-https://bubtclassvault.vercel.app/reset-password/${user.studentId}/${token}
+https://classvaultbubt.vercel.app/reset-password/${user.studentId}/${token}
 
 If you did not request a password reset, please ignore this email. Your account is safe.
 
@@ -257,7 +257,7 @@ router.post('/reset-password/:id/:token', async (req, res) => {
     const { password } = req.body
     jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
       if (err) {
-        return res.status(500).json({ error: "Error with token" })
+        return res.status(500).json({ error: "Link exiperd" })
       }
       else {
         const hashedPassword = await bcrypt.hash(password, 10)

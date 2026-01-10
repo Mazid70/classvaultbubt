@@ -45,7 +45,7 @@ const ResetPass = () => {
 
       <form
         onSubmit={handleUpdate}
-        className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 w-[400px] max-w-[80%]"
+        className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-3 xl:p-8 w-[400px] max-w-[90%]"
       >
         <h1 className="font-bold text-xl">Reset Password</h1>
 
