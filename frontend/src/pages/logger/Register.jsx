@@ -58,10 +58,14 @@ const Register = () => {
   };
 
   return (
-    <main className="h-screen flex bg-[#0C1019]">
+    <main className="h-screen flex bg-[#0C1019] overflow-hidden">
       {/* LEFT SIDE */}
       <div className="p-5 xl:p-0 flex-1 flex justify-center items-center container mx-auto">
-        <div className="max-w-lg w-full">
+        <div
+          className="max-w-lg w-full"
+          data-aos="zoom-in"
+          data-aos-duration="600"
+        >
           <h1 className="font-bold text-sm text-white/60">START FOR FREE</h1>
           <h2 className="font-extrabold text-4xl text-white mt-2">
             Create new Account.

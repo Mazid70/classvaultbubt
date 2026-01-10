@@ -38,7 +38,7 @@ const Dashboard = () => {
     subjectStats = [],
     recentNotes = [],
   } = data;
-
+console.log(totalReacts)
   // 🔹 Cards (role based)
   const cards =
     role === 'student'

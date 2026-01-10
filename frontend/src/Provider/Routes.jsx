@@ -15,6 +15,7 @@ import Dashboard from "../pages/Dashboard/Overview/Dashboard";
 import MyNotes from "../pages/Dashboard/Main/MyNotes";
 import AdminCr from "./AdminCr";
 import ValidUser from "./ValidUser";
+import Leaderboard from "../pages/LeaderBoard/LeaderBoard";
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
       { path: '/coverpage', element: <CoverPageGenerator /> },
       { path: '/notes', element: <Notes /> },
       { path: '/profile', element: <Profile /> },
+      { path: '/leaderboard', element: <Leaderboard/> },
     ],
   },
   {

@@ -12,8 +12,7 @@ const Navbar = () => {
       <Link link="/" title="HOME" />
       <Link link="/notes" title="NOTES" />
       <Link link="/coverpage" title="COVER PAGE" />
-      <Link link="/etc" title="OTHERS" />
-      
+      <Link link="/leaderboard" title="LEADERBOARD" />
     </ul>
   );
 
@@ -42,7 +41,10 @@ const Navbar = () => {
           </div>
           <div
             tabIndex="-1"
-            className="menu menu-sm dropdown-content bg-[#31213D] rounded-box z-1 mt-3 w-52 p-2 shadow"
+            className="menu border border-indigo-900/60 menu-sm dropdown-content bg-[#262030] rounded-box z-1 mt-3 w-52 p-2 shadow"
+            data-aos="fade-down"
+            data-aos-duration="600"
+            data-aos-once="true"
           >
             {link}
           </div>
@@ -67,7 +69,7 @@ const Navbar = () => {
             </NavLink>
           )}
         </div>
-        <div className='lg:hidden'>{user && <Notification />}</div>
+        <div className="lg:hidden">{user && <Notification />}</div>
         {user && (
           <div
             className="dropdown tooltip dropdown-hover tooltip-left  cursor-pointer"
@@ -86,8 +88,10 @@ const Navbar = () => {
             </div>
             <ul
               tabIndex="-1"
-              className="border bg-[#452839] border-white/20 dropdown-content xl:bg-white/10 backdrop-blur-lg menu  rounded-box z-1 xl:w-40 2xl:w-52 p-2 shadow-sm -translate-x-20 xl:translate-x-0"
+              className="border bg-[#262030]  border-white/20 dropdown-content xl:bg-white/10 backdrop-blur-lg menu  rounded-box z-1 xl:w-40 2xl:w-52 p-2 shadow-sm -translate-x-20 xl:translate-x-0 z-20"
             >
+              {/* glow */}
+
               <li>
                 <NavLink to="/profile">Profile</NavLink>
               </li>

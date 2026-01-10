@@ -261,7 +261,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
 
 router.get('/overview', verifyToken, async (req, res) => {
   try {
-    const { role, userId, section } = req.user;
+    const { role, userId, studentId } = req.user; // make sure studentId comes from token
 
     let data = {};
 
@@ -269,27 +269,16 @@ router.get('/overview', verifyToken, async (req, res) => {
     // 🔹 ADMIN / CR DASHBOARD
     // ==========================
     if (role === 'admin' || role === 'cr') {
-      const filter = section ? { section } : {};
-
-      data.totalNotes = await Note.countDocuments(filter);
-      data.approvedNotes = await Note.countDocuments({
-        ...filter,
-        approved: true,
-      });
-      data.pendingNotes = await Note.countDocuments({
-        ...filter,
-        approved: false,
-      });
-      data.totalStudents = await User.countDocuments(
-        section ? { section } : {}
-      );
+      data.totalNotes = await Note.countDocuments();
+      data.approvedNotes = await Note.countDocuments({ approved: true });
+      data.pendingNotes = await Note.countDocuments({ approved: false });
+      data.totalStudents = await User.countDocuments();
 
       data.subjectStats = await Note.aggregate([
-        { $match: filter },
         { $group: { _id: '$subject', count: { $sum: 1 } } },
       ]);
 
-      data.recentNotes = await Note.find(filter)
+      data.recentNotes = await Note.find()
         .populate('user', 'studentId')
         .sort({ createdAt: -1 })
         .limit(5)
@@ -297,43 +286,82 @@ router.get('/overview', verifyToken, async (req, res) => {
     }
 
     // ==========================
-    // 🔹 STUDENT DASHBOARD
+    // 🔹 STUDENT DASHBOARD (filter by studentId)
     // ==========================
     else {
-      const myFilter = { user: userId };
+      // Use aggregation with $lookup to match by studentId
+      const matchStage = {
+        $lookup: {
+          from: 'users',           // collection to join
+          localField: 'user',      // field in Note
+          foreignField: '_id',     // field in User
+          as: 'userData',
+        },
+      };
 
-      data.totalNotes = await Note.countDocuments(myFilter);
-      data.approvedNotes = await Note.countDocuments({
-        ...myFilter,
-        approved: true,
-      });
-      data.pendingNotes = await Note.countDocuments({
-        ...myFilter,
-        approved: false,
-      });
+      const filterStage = {
+        $match: {
+          'userData.studentId': studentId, // filter by studentId
+        },
+      };
 
-      // total reacts
-      const reacts = await Note.aggregate([
-        { $match: myFilter },
+      // Total reacts
+      const reactsAgg = await Note.aggregate([
+        matchStage,
+        filterStage,
         {
-          $project: { reactCount: { $size: '$reacts' } },
+          $project: {
+            reactCount: { $size: { $ifNull: ['$reacts', []] } },
+          },
         },
         {
-          $group: { _id: null, total: { $sum: '$reactCount' } },
+          $group: {
+            _id: null,
+            total: { $sum: '$reactCount' },
+          },
+        },
+      ]);
+      data.totalReacts = reactsAgg.length > 0 ? reactsAgg[0].total : 0;
+
+      // Total notes / approved / pending
+      const notesAgg = await Note.aggregate([
+        matchStage,
+        filterStage,
+        {
+          $group: {
+            _id: null,
+            totalNotes: { $sum: 1 },
+            approvedNotes: { $sum: { $cond: ['$approved', 1, 0] } },
+            pendingNotes: { $sum: { $cond: ['$approved', 0, 1] } },
+          },
         },
       ]);
 
-      data.totalReacts = reacts[0]?.total || 0;
+      if (notesAgg.length > 0) {
+        data.totalNotes = notesAgg[0].totalNotes;
+        data.approvedNotes = notesAgg[0].approvedNotes;
+        data.pendingNotes = notesAgg[0].pendingNotes;
+      } else {
+        data.totalNotes = data.approvedNotes = data.pendingNotes = 0;
+      }
 
-      data.subjectStats = await Note.aggregate([
-        { $match: myFilter },
+      // Notes per subject
+      const subjectStats = await Note.aggregate([
+        matchStage,
+        filterStage,
         { $group: { _id: '$subject', count: { $sum: 1 } } },
       ]);
+      data.subjectStats = subjectStats;
 
-      data.recentNotes = await Note.find(myFilter)
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .select('title approved createdAt subject');
+      // Recent 5 notes
+      const recentNotes = await Note.aggregate([
+        matchStage,
+        filterStage,
+        { $sort: { createdAt: -1 } },
+        { $limit: 5 },
+        { $project: { title: 1, approved: 1, createdAt: 1, subject: 1 } },
+      ]);
+      data.recentNotes = recentNotes;
     }
 
     res.status(200).json({
@@ -342,12 +370,74 @@ router.get('/overview', verifyToken, async (req, res) => {
       ...data,
     });
   } catch (error) {
+    console.error('Overview error:', error);
     res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 });
+router.get('/leaderboard', verifyToken, async (req, res) => {
+  try {
+    // Aggregate users with their notes
+    const leaderboard = await User.aggregate([
+      // Only include students (optional)
+
+      // Lookup notes for each user
+      {
+        $lookup: {
+          from: 'notes',
+          localField: '_id',
+          foreignField: 'user',
+          as: 'userNotes',
+        },
+      },
+
+      // Project required fields
+      {
+        $project: {
+          userName: 1,
+          studentId: 1,
+          photoUrl: 1,
+          totalNotes: { $size: '$userNotes' }, 
+          role:1,
+          totalComments: {
+            $sum: {
+              $map: {
+                input: '$userNotes',
+                as: 'note',
+                in: { $size: { $ifNull: ['$$note.comments', []] } },
+              },
+            },
+          },
+          totalReacts: {
+            $sum: {
+              $map: {
+                input: '$userNotes',
+                as: 'note',
+                in: { $size: { $ifNull: ['$$note.reacts', []] } },
+              },
+            },
+          },
+        },
+      },
+
+      // Sort by totalReacts descending
+      { $sort: { totalReacts: -1 } },
+
+      // Optional: limit to top 10
+      { $limit: 10 },
+    ]);
+
+    res.status(200).json(leaderboard);
+  } catch (error) {
+    console.error('User Leaderboard error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+
+
 // my notes 
 router.get('/my', verifyToken, async (req, res) => {
   try {
@@ -362,48 +452,54 @@ router.get('/my', verifyToken, async (req, res) => {
 router.patch('/my/:id', verifyToken, async (req, res) => {
   try {
     const { title, subject, link } = req.body;
-    console.log(title)
 
+    // খুঁজে বের করি user role
+    const uploader = await User.findById(req.user.userId);
+
+    // approved flag set
+    let approved = false;
+    if (uploader.role === 'admin' || uploader.role === 'cr') {
+      approved = true;
+    }
+
+    // note update
     const note = await Note.findOneAndUpdate(
-      {
-        _id: req.params.id,
-        user: req.user.userId,
-      },
-      {
-        title,
-        subject,
-        link,
-        approved: false, // 🔴 important
-      },
+      { _id: req.params.id, user: req.user.userId },
+      { title, subject, link, approved },
       { new: true }
     );
 
     if (!note) {
-      return res.status(404).json({
-        success: false,
-        message: 'Note not found',
-      });
+      return res.status(404).json({ success: false, message: 'Note not found' });
     }
-    const adminsAndCR = await User.find({ role: { $in: ["admin", "cr"] } });
-    /* 🔔 Notify Admin / CR */
-    
-    await Promise.all(adminsAndCR.map(user =>
-      Notification.create({
-        message: `⏳${uploader.userName} has updated a material. Please Check`,
-        type: "approval",
-        receiverStudentId: user.studentId,
-      })
-    ));
+
+    // 🔔 Notification only if normal user updates
+    if (uploader.role !== 'admin' && uploader.role !== 'cr') {
+      const adminsAndCR = await User.find({ role: { $in: ['admin', 'cr'] } });
+      await Promise.all(
+        adminsAndCR.map(user =>
+          Notification.create({
+            message: `⏳ ${uploader.userName} has updated a material. Please check.`,
+            type: 'approval',
+            receiverStudentId: user.studentId,
+          })
+        )
+      );
+    }
 
     res.json({
       success: true,
-      message: 'Note updated & sent for review',
+      message: approved
+        ? 'Note updated successfully (auto-approved)'
+        : 'Note updated & sent for review',
+      note,
     });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
 
 router.delete('/my/:id', verifyToken, async (req, res) => {
   try {

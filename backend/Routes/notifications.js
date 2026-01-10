@@ -4,7 +4,6 @@ const { Notification } = require('../models/model');
 const verifyToken = require("../middleware/auth");
 router.get('/', verifyToken, async (req, res) => {
   try {
-    const studentId = req.user.studentId
     const query = {
       $and: [
         {

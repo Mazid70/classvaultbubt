@@ -81,7 +81,7 @@ const User = () => {
     return <Loader/>
 
   return (
-    <div className="xl:p-6 w-full">
+    <div className="xl:p-6 w-full overflow-x-hidden">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h2 className="text-white text-2xl font-semibold">Users</h2>
@@ -95,7 +95,11 @@ const User = () => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-2xl border-t border-white/20 ">
+      <div
+        className="overflow-x-auto rounded-2xl border-t border-white/20 "
+        data-aos="zoom-in"
+        data-aos-duration="600"
+      >
         <table className="min-w-full border-separate border-spacing-y-2">
           <thead>
             <tr>
@@ -172,7 +176,7 @@ const User = () => {
 
                 {/* Actions */}
                 <td className="px-6 py-4 whitespace-nowrap flex justify-center gap-2">
-                  {u?.role !== 'admin'  && (
+                  {u?.role !== 'admin' && (
                     <>
                       {/* Accept button if not accepted */}
                       {u.status !== 'Accepted' && (
