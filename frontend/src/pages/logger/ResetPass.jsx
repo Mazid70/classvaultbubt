@@ -72,7 +72,7 @@ const ResetPass = () => {
             name="password"
             type={isShow ? 'text' : 'password'}
             minLength={6}
-            pattern="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{6,}"
+            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}"
             title="Password must contain at least 1 uppercase, 1 lowercase and 1 number"
             className="bg-white/5 mt-2 text-white pl-10 pr-10 py-2 rounded border border-white/20 focus:border-indigo-400 outline-none w-full"
             placeholder="Enter Your New Password"
