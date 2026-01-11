@@ -71,7 +71,7 @@ const Hero = () => {
                 <CountUp
                   start={0}
                   end={6}
-                  delay={1}
+                  delay={2}
                   scrollSpyOnce
                   enableScrollSpy
                 >

@@ -101,6 +101,7 @@ const Register = () => {
                   type="text"
                   name="id"
                   placeholder=""
+                  min={11}
                   className="peer w-full h-13 rounded-md bg-gray-700 pl-3 pt-5 text-white outline-none pb-2"
                 />
                 <label className={inputCss}>Your ID</label>

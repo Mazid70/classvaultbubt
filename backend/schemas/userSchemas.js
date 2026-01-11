@@ -30,6 +30,7 @@ const userSchema = mongoose.Schema({
     type: String,
     enum: ['Pending', 'Accepted','Blocked'],
     default:'Pending'
-  }
-})
+  },
+  
+}, { timestamps: true })
 module.exports=userSchema

@@ -499,7 +499,17 @@ router.patch('/my/:id', verifyToken, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+router.delete('/all/:id', verifyToken, async (req, res) => {
+  try {
+    await Note.findOneAndDelete({
+      _id: req.params.id,
+    });
 
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 router.delete('/my/:id', verifyToken, async (req, res) => {
   try {
