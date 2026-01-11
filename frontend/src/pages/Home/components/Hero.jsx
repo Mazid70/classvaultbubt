@@ -108,7 +108,7 @@ const Hero = () => {
             >
               <li>Section-Only Secure Access</li>
               <li>Notes & Study Material Sharing</li>
-              <li>Announcement Board</li>
+              <li>Beautiful Leaderboard</li>
               <li>Modern Animated Dark UI</li>
             </ul>
             <Link to="/register">

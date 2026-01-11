@@ -82,16 +82,18 @@ const PendingNotes = () => {
       <div className="space-y-6 relative mt-10 w-full">
         {/* Header */}
         <div data-aos="fade-up">
-          <h2 className="text-2xl font-semibold text-white">Pending Notes</h2>
+          <h2 className="text-2xl font-semibold text-white">
+            Pending Materials
+          </h2>
           <p className="text-gray-400 text-sm">
-            Review and approve notes submitted by students
+            Review and approve materials submitted by students
           </p>
         </div>
 
         {/* Notes */}
         {notes.length === 0 ? (
           <div className="text-gray-400 text-sm backdrop-blur-md bg-white/5 border border-white/10 rounded-xl p-4">
-            🎉 No pending notes found
+            🎉 No pending materials found
           </div>
         ) : (
           notes.map(note => (

@@ -41,7 +41,8 @@ const MaterialCard = ({ note, refetch }) => {
       console.error(err);
     }
   };
- const handleDelete = async () => {
+  const handleDelete = async () => {
+   if (!confirm('Are you sure you want to delete this note?')) return;
    const toastId = toast.loading('Deleting note...');
 
    try {

@@ -4,6 +4,7 @@ import {
   FaEnvelope,
   FaWhatsapp,
 } from 'react-icons/fa';
+import { Link } from 'react-router';
 import { HiOutlineAcademicCap, HiOutlineCode } from 'react-icons/hi';
 import AOS from 'aos';
 import { useEffect } from 'react';
@@ -29,7 +30,7 @@ const Footer = () => {
             <p className="text-white/70 leading-relaxed">
               A secure academic vault built for BUBT CSE intake 54 section 01
               students to share notes, and essential learning resources
-              ,Genarate cove page etc .
+              ,Genarate cover page etc .
             </p>
           </div>
 
@@ -40,16 +41,16 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2 text-white/70">
               <li className="hover:text-white transition cursor-pointer">
-                Home
+                <Link to="/">Home</Link>
               </li>
               <li className="hover:text-white transition cursor-pointer">
-                Notes
+                <Link to="/materials">Materials</Link>
               </li>
               <li className="hover:text-white transition cursor-pointer">
-                Announcements
+                <Link to="/leaderboard">Leaderboard</Link>
               </li>
               <li className="hover:text-white transition cursor-pointer">
-                Dashboard
+                <Link to="/dashboard">Dashboard</Link>
               </li>
             </ul>
           </div>

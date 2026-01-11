@@ -42,13 +42,13 @@ const Dashboard = () => {
   const cards =
     role === 'student'
       ? [
-          { label: 'My Notes', value: totalNotes },
+          { label: 'My Material', value: totalNotes },
           { label: 'Approved', value: approvedNotes },
           { label: 'Pending', value: pendingNotes },
           { label: 'Reacts', value: totalReacts },
         ]
       : [
-          { label: 'Total Notes', value: totalNotes },
+          { label: 'Total Materials', value: totalNotes },
           { label: 'Approved', value: approvedNotes },
           { label: 'Pending', value: pendingNotes },
           { label: 'Students', value: totalStudents },
@@ -80,7 +80,7 @@ const Dashboard = () => {
       <div className="grid  md:grid-cols-2 gap-6">
         {/* Pie */}
         <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-xl p-5">
-          <h3 className="text-white font-medium mb-4">Notes Status</h3>
+          <h3 className="text-white font-medium mb-4">Materials Status</h3>
 
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
@@ -96,7 +96,9 @@ const Dashboard = () => {
 
         {/* Bar */}
         <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-xl p-5">
-          <h3 className="text-white font-medium mb-4">Subject-wise Notes</h3>
+          <h3 className="text-white font-medium mb-4">
+            Subject-wise Materials
+          </h3>
 
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={subjectStats}>
@@ -111,7 +113,7 @@ const Dashboard = () => {
       {/* ================= TABLE ================= */}
       <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-xl p-5">
         <h3 className="text-white font-medium mb-4">
-          {role === 'student' ? 'My Recent Notes' : 'Recent Notes'}
+          {role === 'student' ? 'My Recent Materials' : 'Recent Materials'}
         </h3>
 
         <div className="overflow-x-auto">

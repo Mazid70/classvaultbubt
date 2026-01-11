@@ -66,6 +66,7 @@ const TopBar = ({ refetch, setSearch, resetPage,setFilter }) => {
           <option value="CSE 210">CSE 210</option>
           <option value="CSE 231">CSE 231</option>
           <option value="CSE 232">CSE 232</option>
+          <option value="Others">Others</option>
         </select>
 
         <button

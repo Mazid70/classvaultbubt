@@ -225,10 +225,13 @@ const TopCard = ({
         <h3 className="mt-4 text-white font-semibold text-center truncate px-1">
           {user.userName}
         </h3>
+        <p className="text-xs text-gray-300 font-semibold text-center uppercase tracking-wider mb-1">
+          ID:{user.studentId}
+        </p>
         <p className="text-xs text-gray-400 text-center uppercase tracking-wider">
           Rank #{rank}
         </p>
-
+        
         {/* Stats */}
         <div className="mt-5 bg-black/30 rounded-2xl py-3 text-center space-y-1">
           <p className="text-2xl font-bold text-pink-400">{user.totalReacts}</p>

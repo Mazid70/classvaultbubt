@@ -95,7 +95,7 @@ const MyNotes = () => {
       <section className="mt-10 space-y-6">
         {/* ================= HEADER ================= */}
         <div>
-          <h2 className="text-3xl font-semibold text-white">My Notes</h2>
+          <h2 className="text-3xl font-semibold text-white">My Materials</h2>
           <p className="text-sm text-white/60">
             Manage your uploaded study materials
           </p>
@@ -104,7 +104,7 @@ const MyNotes = () => {
         {/* ================= EMPTY ================= */}
         {data.length === 0 && (
           <div className="text-white/50 text-sm">
-            You haven’t uploaded any notes yet.
+            You haven’t uploaded any materials yet.
           </div>
         )}
 
@@ -199,6 +199,7 @@ const MyNotes = () => {
                 <option value="CSE 210">CSE 210</option>
                 <option value="CSE 231">CSE 231</option>
                 <option value="CSE 232">CSE 232</option>
+                <option value="Others">Others</option>
               </select>
               {/* FILE */}
               <label className="flex items-center gap-3 rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-white cursor-pointer hover:border-indigo-400 mb-4">
