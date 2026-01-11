@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MdEmail } from 'react-icons/md';
 import useCallData from '../../customHooks/useCallData';
 import { RiVerifiedBadgeFill } from 'react-icons/ri';
+import { toast } from 'sonner';
 
 const ForgetPass = () => {
   const axiosData = useCallData();
@@ -11,16 +12,31 @@ const ForgetPass = () => {
   const handleSend = async e => {
     e.preventDefault();
     setLoading(true);
+
+    const email = e.target.email.value;
+
+    // loading toast
+    const toastId = toast.loading('Sending reset email...');
+
     try {
       const res = await axiosData.post('/users/forgot-password', {
-        email: e.target.email.value,
+        email,
       });
+
       if (res.data.success) {
+        toast.success('Password reset email sent!', {
+          id: toastId,
+          description: 'Check your inbox or spam folder',
+        });
         setSend(true);
+      } else {
+        toast.error('Something went wrong', { id: toastId });
       }
     } catch (error) {
-      console.error(error);
-      alert('Failed to send email. Try again.');
+      toast.error('Failed to send email', {
+        id: toastId,
+        description: error?.response?.data?.message || 'Try again later',
+      });
     } finally {
       setLoading(false);
     }
@@ -33,17 +49,12 @@ const ForgetPass = () => {
       <div className="absolute left-1/2 top-1/2 h-[900px] w-[20px] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-b from-pink-400 to-purple-500 blur-[80px] rotate-90"></div>
 
       {loading ? (
-        // Loader
-        <div className="flex flex-col justify-center items-center gap-4 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 w-[400px] max-w-[80%]">
+        <div className="flex flex-col justify-center items-center gap-4 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-3 xl:p-8 w-[400px] max-w-[90%]">
           <div className="w-12 h-12 border-4 border-t-indigo-500 border-b-indigo-500 border-l-transparent border-r-transparent rounded-full animate-spin"></div>
           <p className="text-white/80 text-center">Sending email...</p>
         </div>
       ) : isSend ? (
-        // Success message
-        <div
-          className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 w-[400px] max-w-[80%]"
-          
-        >
+        <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 w-[400px] max-w-[80%]">
           <h2 className="text-lg flex items-center gap-3 font-semibold text-green-400">
             <RiVerifiedBadgeFill />
             Email Sent
@@ -54,16 +65,14 @@ const ForgetPass = () => {
           </p>
         </div>
       ) : (
-        // Form
         <form
           onSubmit={handleSend}
           className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 w-[400px] max-w-[80%]"
-          data-aos="zoom-in"
-          data-aos-duration="600"
         >
           <h1 className="font-bold text-xl">Forget Password</h1>
+
           <div className="w-full mt-2 relative">
-            <MdEmail className="absolute top-11 left-3" />
+            <MdEmail className="absolute top-11 left-3 text-white/70" />
             <label>Email</label>
             <input
               required
@@ -73,6 +82,7 @@ const ForgetPass = () => {
               placeholder="Enter Your Email"
             />
           </div>
+
           <input
             type="submit"
             value="Send"

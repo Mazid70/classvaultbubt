@@ -7,41 +7,56 @@ import { toast } from 'sonner';
 
 const ResetPass = () => {
   const [isShow, setShow] = useState(false);
-  const handlePass = () => setShow(!isShow);
+  const [loading, setLoading] = useState(false);
 
   const axiosData = useCallData();
   const navigate = useNavigate();
   const { id, token } = useParams();
 
+  const handlePass = () => setShow(!isShow);
+
   const handleUpdate = async e => {
     e.preventDefault();
+    if (loading) return;
+
     const password = e.target.password.value;
+    setLoading(true);
+
     const toastId = toast.loading('Updating password...');
 
     try {
-      const res = await axiosData.post(`users/reset-password/${id}/${token}`, {
+      const res = await axiosData.post(`/users/reset-password/${id}/${token}`, {
         password,
       });
 
       if (res.data.success) {
-        toast.success('Password updated successfully!', { id: toastId });
-        navigate('/signin');
+        toast.success('Password updated successfully!', {
+          id: toastId,
+        });
+
+        setTimeout(() => {
+          navigate('/signin');
+        }, 1200);
       } else {
         toast.error(res.data.message || 'Password update failed', {
           id: toastId,
         });
       }
     } catch (error) {
-      toast.error(error?.response?.data?.error || 'Something went wrong', {
-        id: toastId,
-      });
+      toast.error(
+        error?.response?.data?.error || 'Invalid or expired reset link',
+        { id: toastId }
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <main className="h-screen fixed inset-0 z-50 bg-[#1a1a1a] flex justify-center items-center">
+      {/* Background glows */}
       <div className="absolute left-1/2 top-1/2 h-[800px] w-[20px] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-b from-purple-500 to-pink-400 blur-[80px] rotate-6"></div>
-      <div className="absolute left-1/2 top-1/2 h-[900px] w-[20px] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-b from-pink-400 to-purple-500  blur-[80px] rotate-90"></div>
+      <div className="absolute left-1/2 top-1/2 h-[900px] w-[20px] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-b from-pink-400 to-purple-500 blur-[80px] rotate-90"></div>
 
       <form
         onSubmit={handleUpdate}
@@ -51,16 +66,18 @@ const ResetPass = () => {
 
         <div className="w-full mt-4 relative">
           <FaLock className="absolute top-5 left-3 text-white/70" />
+
           <input
             required
             name="password"
             type={isShow ? 'text' : 'password'}
             minLength={6}
-            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}"
-            title="Password must be at least 6 characters and include 1 uppercase, 1 lowercase, and 1 number"
+            pattern="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{6,}"
+            title="Password must contain at least 1 uppercase, 1 lowercase and 1 number"
             className="bg-white/5 mt-2 text-white pl-10 pr-10 py-2 rounded border border-white/20 focus:border-indigo-400 outline-none w-full"
             placeholder="Enter Your New Password"
           />
+
           {isShow ? (
             <BsFillEyeSlashFill
               onClick={handlePass}
@@ -76,8 +93,14 @@ const ResetPass = () => {
 
         <input
           type="submit"
-          value="Update Password"
-          className="mt-6 font-medium cursor-pointer transition-all hover:scale-105 rounded bg-gradient-to-r from-pink-400 via-indigo-500 to-blue-500 py-2 w-full"
+          disabled={loading}
+          value={loading ? 'Updating...' : 'Update Password'}
+          className={`mt-6 font-medium transition-all rounded py-2 w-full
+            ${
+              loading
+                ? 'opacity-60 cursor-not-allowed'
+                : 'cursor-pointer hover:scale-105 bg-gradient-to-r from-pink-400 via-indigo-500 to-blue-500'
+            }`}
         />
       </form>
     </main>
