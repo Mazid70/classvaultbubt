@@ -3,6 +3,7 @@ import UploadModal from './UploadModal';
 import { FaCloudUploadAlt } from 'react-icons/fa';
 import { MdSearch } from 'react-icons/md';
 import { TiPlus } from 'react-icons/ti';
+import '../../../App.css'
 const TopBar = ({ refetch, search, setSearch, resetPage, setFilter,filter }) => {
   const [openModal, setOpenModal] = useState(false);
   const [input, setInput] = useState('');
@@ -23,7 +24,7 @@ const TopBar = ({ refetch, search, setSearch, resetPage, setFilter,filter }) => 
     <main>
       <button
         onClick={() => setOpenModal(true)}
-        className="md:hidden fixed rounded-full h-8 w-8 bg-gradient-to-r from-pink-400 to-purple-500 bottom-16 z-50 right-3 flex justify-center items-center cursor-pointer"
+        className="md:hidden fixed rounded-full h-10 w-10 bg-gradient-to-r from-pink-400 to-purple-500 bottom-16 z-50 right-3 flex justify-center items-center cursor-pointer"
       >
         <TiPlus />
       </button>
@@ -75,7 +76,7 @@ const TopBar = ({ refetch, search, setSearch, resetPage, setFilter,filter }) => 
           )}
         </div>
       </div>
-      <div className="md:mt-6 flex gap-3 overflow-x-auto overflow-y-hidden px-2 md:px-0 no-scrollbar justify-start md:justify-center ">
+      <div className="md:mt-6 flex gap-3 overflow-x-auto overflow-y-hidden px-2 md:p-0 scrollbar-hide justify-start md:justify-center ">
         {[
           'All',
           'CSE 207',
@@ -92,7 +93,7 @@ const TopBar = ({ refetch, search, setSearch, resetPage, setFilter,filter }) => 
             <button
               key={idx}
               onClick={() => setFilter(val === 'All' ? '' : val)}
-              className={`flex-shrink-0 xl:w-36 px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer
+              className={`flex-shrink-0 xl:w-36 2xl:w-[148px] px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer
           ${
             isActive
               ? 'bg-gradient-to-r from-pink-400/20 to-purple-500/20 text-white shadow-md scale-105'
