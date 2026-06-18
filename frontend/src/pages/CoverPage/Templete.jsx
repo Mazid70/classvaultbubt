@@ -8,6 +8,35 @@ import {
 } from '@react-pdf/renderer';
 import bubtImg from '../../assets/bubt.png';
 
+/* ─────────────────────────────────────────────
+   DYNAMIC SIZING HELPERS
+   Shrinks fonts / spacing when content is long
+───────────────────────────────────────────── */
+const getContentLength = data => {
+  const fields = [
+    data.assignment || '',
+    data.experimentName || '',
+    data.courseCode || '',
+    data.courseTitle || '',
+    data.name || '',
+    data.id || '',
+    data.teacher || '',
+    data.department || '',
+  ];
+  return Math.max(...fields.map(f => f.length));
+};
+
+const scale = (base, maxLen) => {
+  if (maxLen <= 30) return base;
+  if (maxLen <= 50) return base * 0.9;
+  if (maxLen <= 70) return base * 0.82;
+  return base * 0.75;
+};
+
+/* ─────────────────────────────────────────────
+   STYLES  (static values only; dynamic ones
+   are injected inline per-render)
+───────────────────────────────────────────── */
 const styles = StyleSheet.create({
   page: {
     width: 794,
@@ -17,78 +46,59 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
   },
   container: {
+    flex: 1,
     borderWidth: 2,
     borderStyle: 'dashed',
     borderColor: '#000',
     borderRadius: 20,
     paddingHorizontal: 10,
-    paddingVertical: 30,
+    paddingVertical: 15,
     flexDirection: 'column',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'extrabold',
-    textAlign: 'center',
-    marginBottom: 10,
+  topBlock: {
+    flexDirection: 'column',
+    alignItems: 'center',
   },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: 'extrabold',
-    textAlign: 'center',
-    marginBottom: 30,
+  logoContainer: {
+    alignItems: 'center',
   },
-  logoContainer: { alignItems: 'center', marginBottom: 30 },
-  logo: { height: 140 },
   assignmentBox: {
     borderWidth: 2,
     borderColor: '#000',
     borderRadius: 12,
-    paddingVertical: 10,
+    paddingVertical: 8,
     paddingHorizontal: 30,
     alignSelf: 'center',
-    marginBottom: 30,
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 18,
   },
   infoSection: {
-    marginBottom: 20,
     paddingLeft: 40,
     flexDirection: 'column',
-    gap: '5px',
   },
-  infoText: { fontSize: 14, marginTop: 8 },
   label: { fontWeight: 'bold' },
   section: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
   },
   box: {
     width: '49%',
     borderWidth: 2,
     borderColor: '#000',
     borderRadius: 20,
-    padding: 15,
-    display: 'flex',
+    padding: 12,
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    fontSize: 14,
-    gap: '10px',
   },
   boxTitle: {
-    fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 10,
     textAlign: 'center',
     textDecoration: 'underline',
   },
   footer: {
-    marginTop: 30,
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 16,
   },
 });
 
@@ -101,101 +111,160 @@ const formatDate = dateStr => {
   return `${day}/${month}/${year}`;
 };
 
-const Templete = ({ data }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <View style={styles.container}>
-        <Text style={styles.title}>
-          Bangladesh University of Business and Technology
-        </Text>
-        <Text style={styles.subtitle}>(BUBT)</Text>
+/* ─────────────────────────────────────────────
+   MAIN COMPONENT
+───────────────────────────────────────────── */
+const Templete = ({ data }) => {
+  const maxLen = getContentLength(data);
+  const s = base => scale(base, maxLen); // shorthand
 
-        <View style={styles.logoContainer}>
-          <Image src={bubtImg} style={styles.logo} />
-        </View>
+  // Derived spacing — shrinks proportionally with text
+  const gap = s(6);
+  const logoH = s(120);
+  const mb = s(10); // standard margin-bottom
+  const mbSm = s(5); // small margin-bottom
 
-        <View style={styles.assignmentBox}>
-          <Text>{data.type || 'ASSIGNMENT'}</Text>
-        </View>
-
-        <View style={styles.infoSection}>
-          {data.type?.toLowerCase() === 'assignment' && (
-            <Text style={styles.infoText}>
-              <Text style={styles.label}>Assignment no: </Text>
-              {data.assignment}
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.container}>
+          {/* ── University Header ── */}
+          <View style={[styles.topBlock, { marginBottom: mbSm }]}>
+            <Text
+              style={{
+                fontSize: s(19),
+                fontWeight: 'extrabold',
+                textAlign: 'center',
+                marginBottom: mbSm,
+              }}
+            >
+              Bangladesh University of Business and Technology
             </Text>
-          )}
-          <Text style={styles.infoText}>
-            <Text style={styles.label}>Course Code: </Text>
-            {data.courseCode}
-          </Text>
-          <Text style={styles.infoText}>
-            <Text style={styles.label}>Course Title: </Text>
-            {data.courseTitle}
-          </Text>
-          {data.type?.toLowerCase() === 'lab report' && (
-            <>
-              <Text style={styles.infoText}>
-                <Text style={styles.label}>Experiment no: </Text>
-                {data.experiment}
+            <Text
+              style={{
+                fontSize: s(17),
+                fontWeight: 'extrabold',
+                textAlign: 'center',
+                marginBottom: mb,
+              }}
+            >
+              (BUBT)
+            </Text>
+
+            {/* Logo */}
+            <View style={[styles.logoContainer, { marginBottom: mb }]}>
+              <Image src={bubtImg} style={{ height: logoH }} />
+            </View>
+
+            {/* Type badge */}
+            <View style={[styles.assignmentBox, { marginBottom: mb }]}>
+              <Text style={{ fontSize: s(17), fontWeight: 'bold' }}>
+                {data.type || 'ASSIGNMENT'}
               </Text>
-              <Text style={styles.infoText}>
-                <Text style={styles.label}>Experiment Name: </Text>
-                {data.experimentName}
-              </Text>
-            </>
-          )}
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.box}>
-            <Text style={styles.boxTitle}>Submitted By</Text>
-            <Text>
-              <Text style={styles.label}>Name: </Text>
-              {data.name}
-            </Text>
-            <Text>
-              <Text style={styles.label}>ID No: </Text>
-              {data.id}
-            </Text>
-            <Text>
-              <Text style={styles.label}>Intake: </Text>
-              {data.intake || '54'}
-            </Text>
-            <Text>
-              <Text style={styles.label}>Section: </Text>
-              {data.section || '01'}
-            </Text>
-            <Text>
-              <Text style={styles.label}>Program: </Text>B.Sc Engg in CSE
-            </Text>
+            </View>
           </View>
 
-          <View style={styles.box}>
-            <Text style={styles.boxTitle}>Submitted To</Text>
-            {data.teacher && (
-              <Text>
-                <Text style={styles.label}>Name: </Text>
-                {data.teacher}
+          {/* ── Info Section ── */}
+          <View style={[styles.infoSection, { marginBottom: mb }]}>
+            {data.type?.toLowerCase() === 'assignment' && (
+              <Text
+                style={[
+                  styles.infoText,
+                  { fontSize: s(13), marginBottom: gap },
+                ]}
+              >
+                <Text style={styles.label}>Assignment no: </Text>
+                {data.assignment}
               </Text>
             )}
-            {data.department && (
-              <Text>
-                <Text style={styles.label}>Department of: </Text>
-                {data.department}
-              </Text>
-            )}
-            <Text>Bangladesh University of Business & Technology</Text>
-          </View>
-        </View>
 
-        <Text style={styles.footer}>
-          <Text style={styles.label}>Date of Submission: </Text>
-          {formatDate(data.date)}
-        </Text>
-      </View>
-    </Page>
-  </Document>
-);
+            <Text style={{ fontSize: s(13), marginBottom: gap }}>
+              <Text style={styles.label}>Course Code: </Text>
+              {data.courseCode}
+            </Text>
+
+            <Text style={{ fontSize: s(13), marginBottom: gap }}>
+              <Text style={styles.label}>Course Title: </Text>
+              {data.courseTitle}
+            </Text>
+
+            {data.type?.toLowerCase() === 'lab report' && (
+              <>
+                <Text style={{ fontSize: s(13), marginBottom: gap }}>
+                  <Text style={styles.label}>Experiment no: </Text>
+                  {data.experiment}
+                </Text>
+                <Text style={{ fontSize: s(13), marginBottom: gap }}>
+                  <Text style={styles.label}>Experiment Name: </Text>
+                  {data.experimentName}
+                </Text>
+              </>
+            )}
+          </View>
+
+          {/* ── Submitted By / To ── */}
+          <View style={[styles.section, { marginBottom: mb }]}>
+            {/* Submitted By */}
+            <View style={styles.box}>
+              <Text
+                style={[
+                  styles.boxTitle,
+                  { fontSize: s(13), marginBottom: gap },
+                ]}
+              >
+                Submitted By
+              </Text>
+              {[
+                ['Name', data.name],
+                ['ID No', data.id],
+                ['Intake', data.intake || '54'],
+                ['Section', data.section || '01'],
+                ['Program', 'B.Sc Engg in CSE'],
+              ].map(([lbl, val]) => (
+                <Text key={lbl} style={{ fontSize: s(12), marginBottom: gap }}>
+                  <Text style={styles.label}>{lbl}: </Text>
+                  {val}
+                </Text>
+              ))}
+            </View>
+
+            {/* Submitted To */}
+            <View style={styles.box}>
+              <Text
+                style={[
+                  styles.boxTitle,
+                  { fontSize: s(13), marginBottom: gap },
+                ]}
+              >
+                Submitted To
+              </Text>
+              {data.teacher && (
+                <Text style={{ fontSize: s(12), marginBottom: gap }}>
+                  <Text style={styles.label}>Name: </Text>
+                  {data.teacher}
+                </Text>
+              )}
+              {data.department && (
+                <Text style={{ fontSize: s(12), marginBottom: gap }}>
+                  <Text style={styles.label}>Department of: </Text>
+                  {data.department}
+                </Text>
+              )}
+              <Text style={{ fontSize: s(12) }}>
+                Bangladesh University of Business &amp; Technology
+              </Text>
+            </View>
+          </View>
+
+          {/* ── Footer ── */}
+          <Text style={[styles.footer, { fontSize: s(15) }]}>
+            <Text style={styles.label}>Date of Submission: </Text>
+            {formatDate(data.date)}
+          </Text>
+        </View>
+      </Page>
+    </Document>
+  );
+};
 
 export default Templete;
