@@ -26,7 +26,7 @@ const AuthProvider = ({ children }) => {
       await axiosData.post('/users/logout');
       window.location.reload()
     } catch (err) {
-      console.log(err);
+     return err;
     }
   };
 

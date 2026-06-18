@@ -52,7 +52,7 @@ const Notes = () => {
   if (isLoading) {
     return <Loader />;
   }
-console.log(filter)
+
   return (
     <div className="min-h-screen bg-[#1a1a1a] px-5 py-10 relative py-20 overflow-x-hidden">
       {/* Background Glow */}
